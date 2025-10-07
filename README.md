@@ -1,0 +1,2 @@
+# buddy_gym_app_frontend_2025
+buddy_gym_app_frontend_2025
