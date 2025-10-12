@@ -3,10 +3,12 @@ package com.example.buddy_gym_app_frontend_2025;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,10 +29,14 @@ import retrofit2.Response;
 
 public class ExerciseListActivity extends AppCompatActivity {
 
+    private static final String TAG = "ExerciseListActivity";
     private RecyclerView exerciseRecyclerView;
     private ExerciseAdapter exerciseAdapter;
     private FloatingActionButton addExerciseFab;
     private RetrofitClient retrofitClient;
+    private ProgressBar progressBar;
+    private TextView muscleNameText;
+    private TextView emptyStateText;
 
     private int muscleId;
     private String muscleName;
@@ -53,6 +59,16 @@ public class ExerciseListActivity extends AppCompatActivity {
     private void initializeViews() {
         exerciseRecyclerView = findViewById(R.id.exerciseRecyclerView);
         addExerciseFab = findViewById(R.id.addExerciseFab);
+        progressBar = findViewById(R.id.progressBar);
+        muscleNameText = findViewById(R.id.muscleNameText);
+        emptyStateText = findViewById(R.id.emptyStateText);
+
+        // Display the selected muscle name
+        if (muscleName != null && !muscleName.isEmpty()) {
+            muscleNameText.setText(muscleName);
+        } else {
+            muscleNameText.setText("Exercises");
+        }
 
         exerciseRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -84,19 +100,53 @@ public class ExerciseListActivity extends AppCompatActivity {
     }
 
     private void loadExercises() {
+        Log.d(TAG, "Loading exercises for muscle ID: " + muscleId + " (" + muscleName + ")");
+        
+        // Show loading, hide other views
+        progressBar.setVisibility(View.VISIBLE);
+        exerciseRecyclerView.setVisibility(View.GONE);
+        emptyStateText.setVisibility(View.GONE);
+        
         retrofitClient.getExerciseService().getExercises(muscleId).enqueue(new Callback<List<Exercise>>() {
             @Override
             public void onResponse(Call<List<Exercise>> call, Response<List<Exercise>> response) {
+                progressBar.setVisibility(View.GONE);
+                
+                Log.d(TAG, "Response code: " + response.code());
+                
                 if (response.isSuccessful() && response.body() != null) {
-                    exerciseAdapter.setExercises(response.body());
+                    List<Exercise> exercises = response.body();
+                    Log.d(TAG, "Loaded " + exercises.size() + " exercises");
+                    
+                    if (exercises.isEmpty()) {
+                        // Show empty state
+                        emptyStateText.setText("No exercises found for " + muscleName + "\n\nTap + to add one");
+                        emptyStateText.setVisibility(View.VISIBLE);
+                        exerciseRecyclerView.setVisibility(View.GONE);
+                    } else {
+                        // Show exercises
+                        exerciseRecyclerView.setVisibility(View.VISIBLE);
+                        emptyStateText.setVisibility(View.GONE);
+                        exerciseAdapter.setExercises(exercises);
+                    }
                 } else {
-                    Toast.makeText(ExerciseListActivity.this, "Failed to load exercises", Toast.LENGTH_SHORT).show();
+                    // Show error
+                    String errorMsg = "Failed to load exercises. Code: " + response.code();
+                    Log.e(TAG, errorMsg);
+                    emptyStateText.setText(errorMsg + "\n\nCheck your connection and try again");
+                    emptyStateText.setVisibility(View.VISIBLE);
+                    Toast.makeText(ExerciseListActivity.this, errorMsg, Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Exercise>> call, Throwable t) {
-                Toast.makeText(ExerciseListActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE);
+                String errorMsg = "Network error: " + t.getMessage();
+                Log.e(TAG, errorMsg, t);
+                emptyStateText.setText(errorMsg + "\n\nCheck your connection and try again");
+                emptyStateText.setVisibility(View.VISIBLE);
+                Toast.makeText(ExerciseListActivity.this, errorMsg, Toast.LENGTH_LONG).show();
             }
         });
     }
