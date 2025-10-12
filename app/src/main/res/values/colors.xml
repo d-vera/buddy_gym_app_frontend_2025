@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Primary Colors -->
+    <color name="primary_red">#E57373</color>
+    <color name="primary_red_dark">#D32F2F</color>
+    <color name="primary_green">#81C784</color>
+    <color name="primary_blue">#64B5F6</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+    <color name="text_red">#E57373</color>
+    
+    <!-- Background Colors -->
+    <color name="background_light">#FAFAFA</color>
+    <color name="background_white">#FFFFFF</color>
+    <color name="background_gray">#F5F5F5</color>
+    
+    <!-- Button Colors -->
+    <color name="button_primary">#E57373</color>
+    <color name="button_disabled">#E0E0E0</color>
+    
+    <!-- Border Colors -->
+    <color name="border_gray">#E0E0E0</color>
+    
+    <!-- Social Media Colors -->
+    <color name="twitter_blue">#1DA1F2</color>
+    <color name="facebook_blue">#4267B2</color>
+</resources>

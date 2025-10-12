@@ -1,0 +1,757 @@
+openapi: 3.0.3
+info:
+  title: Fitness Studio API
+  version: 1.0.0
+  description: REST API for managing fitness studio users, exercises, and training
+    sessions
+paths:
+  /api/auth/login/:
+    post:
+      operationId: api_auth_login_create
+      description: Login with email or username (nickname) and password to receive
+        a JWT token. You can use either your email address or your username to login.
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+            examples:
+              LoginWithEmail:
+                value:
+                  email_or_username: user@example.com
+                  password: SecurePass123
+                summary: Login with email
+              LoginWithUsername:
+                value:
+                  email_or_username: johndoe
+                  password: SecurePass123
+                summary: Login with username
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT authentication token
+                  user:
+                    type: object
+                    description: User profile information
+                  message:
+                    type: string
+                    description: Success message
+          description: ''
+  /api/auth/profile/:
+    get:
+      operationId: api_auth_profile_retrieve
+      description: Get current authenticated user profile
+      tags:
+      - Authentication
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: api_auth_register_create
+      description: Register a new user with email, password, first name, last name,
+        and username (nickname)
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/exercises/:
+    get:
+      operationId: api_exercises_list
+      description: List all exercises for the current user, optionally filtered by
+        muscle.
+      parameters:
+      - in: query
+        name: muscle
+        schema:
+          type: integer
+        description: Filter exercises by muscle ID
+      tags:
+      - Exercises
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exercise'
+          description: ''
+    post:
+      operationId: api_exercises_create
+      description: ViewSet for managing exercises.
+      tags:
+      - Exercises
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExerciseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExerciseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExerciseRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exercise'
+          description: ''
+  /api/exercises/{id}/:
+    get:
+      operationId: api_exercises_retrieve
+      description: ViewSet for managing exercises.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Exercises
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exercise'
+          description: ''
+    put:
+      operationId: api_exercises_update
+      description: ViewSet for managing exercises.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Exercises
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExerciseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExerciseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExerciseRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exercise'
+          description: ''
+    patch:
+      operationId: api_exercises_partial_update
+      description: ViewSet for managing exercises.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Exercises
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedExerciseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedExerciseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedExerciseRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exercise'
+          description: ''
+    delete:
+      operationId: api_exercises_destroy
+      description: ViewSet for managing exercises.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Exercises
+      responses:
+        '204':
+          description: No response body
+  /api/muscles/:
+    get:
+      operationId: api_muscles_list
+      description: ViewSet for listing muscle groups.
+      tags:
+      - Muscles
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Muscle'
+          description: ''
+  /api/muscles/{id}/:
+    get:
+      operationId: api_muscles_retrieve
+      description: ViewSet for listing muscle groups.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this muscle.
+        required: true
+      tags:
+      - Muscles
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Muscle'
+          description: ''
+  /api/trainings/:
+    get:
+      operationId: api_trainings_list
+      description: ViewSet for managing training sessions.
+      tags:
+      - Training
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Training'
+          description: ''
+    post:
+      operationId: api_trainings_create
+      description: ViewSet for managing training sessions.
+      tags:
+      - Training
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TrainingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TrainingRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Training'
+          description: ''
+  /api/trainings/{id}/:
+    get:
+      operationId: api_trainings_retrieve
+      description: ViewSet for managing training sessions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Training
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Training'
+          description: ''
+    put:
+      operationId: api_trainings_update
+      description: ViewSet for managing training sessions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Training
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TrainingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TrainingRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Training'
+          description: ''
+    patch:
+      operationId: api_trainings_partial_update
+      description: ViewSet for managing training sessions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Training
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTrainingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTrainingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTrainingRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Training'
+          description: ''
+    delete:
+      operationId: api_trainings_destroy
+      description: ViewSet for managing training sessions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Training
+      responses:
+        '204':
+          description: No response body
+  /api/trainings/history/:
+    get:
+      operationId: api_trainings_history_retrieve
+      description: Get training history with optional filters
+      parameters:
+      - in: query
+        name: exercise
+        schema:
+          type: integer
+        description: Filter by exercise ID
+      - in: query
+        name: muscle
+        schema:
+          type: integer
+        description: Filter by muscle ID
+      - in: query
+        name: period
+        schema:
+          type: string
+          enum:
+          - current_week
+          - last_month
+          - last_week
+          - last_year
+        description: 'Filter by time period: current_week, last_week, last_month,
+          last_year'
+      tags:
+      - Training
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Training'
+          description: ''
+  /api/trainings/stats/:
+    get:
+      operationId: api_trainings_stats_list
+      description: Get training statistics including low, high, and last weight for
+        each exercise
+      parameters:
+      - in: query
+        name: exercise
+        schema:
+          type: integer
+        description: Filter stats by exercise ID
+      - in: query
+        name: muscle
+        schema:
+          type: integer
+        description: Filter stats by muscle ID
+      tags:
+      - Training
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrainingStats'
+          description: ''
+components:
+  schemas:
+    Exercise:
+      type: object
+      description: Serializer for exercises.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        muscle:
+          type: integer
+        muscle_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        note:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - muscle
+      - muscle_name
+      - name
+      - updated_at
+    ExerciseRequest:
+      type: object
+      description: Serializer for exercises.
+      properties:
+        muscle:
+          type: integer
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        note:
+          type: string
+          nullable: true
+      required:
+      - muscle
+      - name
+    Muscle:
+      type: object
+      description: Serializer for muscle groups.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          $ref: '#/components/schemas/NameEnum'
+      required:
+      - id
+      - name
+    NameEnum:
+      enum:
+      - back
+      - biceps
+      - chest
+      - triceps
+      - shoulders
+      - abs
+      - legs
+      - glutes
+      - arms
+      type: string
+      description: |-
+        * `back` - Back
+        * `biceps` - Biceps
+        * `chest` - Chest
+        * `triceps` - Triceps
+        * `shoulders` - Shoulders
+        * `abs` - Abs
+        * `legs` - Legs
+        * `glutes` - Glutes
+        * `arms` - Arms
+    PatchedExerciseRequest:
+      type: object
+      description: Serializer for exercises.
+      properties:
+        muscle:
+          type: integer
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        note:
+          type: string
+          nullable: true
+    PatchedTrainingRequest:
+      type: object
+      description: Serializer for training sessions.
+      properties:
+        exercise:
+          type: integer
+        weight:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+        sets:
+          type: integer
+          maximum: 4294967295
+          minimum: 0
+          format: int64
+        repetitions:
+          type: integer
+          maximum: 4294967295
+          minimum: 0
+          format: int64
+    Training:
+      type: object
+      description: Serializer for training sessions.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        exercise:
+          type: integer
+        exercise_name:
+          type: string
+          readOnly: true
+        muscle_name:
+          type: string
+          readOnly: true
+        weight:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+        sets:
+          type: integer
+          maximum: 4294967295
+          minimum: 0
+          format: int64
+        repetitions:
+          type: integer
+          maximum: 4294967295
+          minimum: 0
+          format: int64
+        datetime:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - datetime
+      - exercise
+      - exercise_name
+      - id
+      - muscle_name
+      - repetitions
+      - sets
+      - weight
+    TrainingRequest:
+      type: object
+      description: Serializer for training sessions.
+      properties:
+        exercise:
+          type: integer
+        weight:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+        sets:
+          type: integer
+          maximum: 4294967295
+          minimum: 0
+          format: int64
+        repetitions:
+          type: integer
+          maximum: 4294967295
+          minimum: 0
+          format: int64
+      required:
+      - exercise
+      - repetitions
+      - sets
+      - weight
+    TrainingStats:
+      type: object
+      description: Serializer for training statistics.
+      properties:
+        exercise_id:
+          type: integer
+        exercise_name:
+          type: string
+        muscle_name:
+          type: string
+        low_weight:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+        high_weight:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+        last_weight:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+        total_sessions:
+          type: integer
+      required:
+      - exercise_id
+      - exercise_name
+      - high_weight
+      - last_weight
+      - low_weight
+      - muscle_name
+      - total_sessions
+    User:
+      type: object
+      description: Serializer for user details.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        username:
+          type: string
+          maxLength: 150
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - date_joined
+      - email
+      - first_name
+      - id
+      - last_name
+      - username
+    UserLoginRequest:
+      type: object
+      description: Serializer for user login with email or username.
+      properties:
+        email_or_username:
+          type: string
+          minLength: 1
+          description: Enter your email or username (nickname)
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email_or_username
+      - password
+    UserRegistrationRequest:
+      type: object
+      description: Serializer for user registration.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 255
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        username:
+          type: string
+          minLength: 1
+          maxLength: 150
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+      required:
+      - email
+      - first_name
+      - last_name
+      - password
+      - username

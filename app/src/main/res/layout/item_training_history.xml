@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="horizontal"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/dateText"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="2/2/2025"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/weightText"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="5"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/setsText"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="4"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/repsText"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="10"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp" />
+
+</LinearLayout>
