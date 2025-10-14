@@ -3,12 +3,15 @@ package com.example.buddy_gym_app_frontend_2025;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,6 +35,7 @@ public class MuscleSelectionActivity extends AppCompatActivity {
     private View errorLayout;
     private TextView errorTextView;
     private android.widget.Button retryButton;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +49,9 @@ public class MuscleSelectionActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        
         muscleRecyclerView = findViewById(R.id.muscleRecyclerView);
         progressBar = findViewById(R.id.progressBar);
         errorLayout = findViewById(R.id.errorLayout);
@@ -90,6 +97,10 @@ public class MuscleSelectionActivity extends AppCompatActivity {
                         muscleRecyclerView.setVisibility(View.VISIBLE);
                         muscleAdapter.setMuscles(muscles);
                     }
+                } else if (response.code() == 401 || response.code() == 403) {
+                    // Token expired or invalid - handled by AuthInterceptor
+                    Log.e(TAG, "Authentication failed. Code: " + response.code());
+                    // AuthInterceptor will handle redirect to login
                 } else {
                     String errorMsg = "Failed to load muscles. Code: " + response.code();
                     Log.e(TAG, errorMsg);
@@ -112,5 +123,28 @@ public class MuscleSelectionActivity extends AppCompatActivity {
         errorLayout.setVisibility(View.VISIBLE);
         muscleRecyclerView.setVisibility(View.GONE);
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_logout) {
+            performLogout();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void performLogout() {
+        retrofitClient.getTokenManager().clearToken();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }

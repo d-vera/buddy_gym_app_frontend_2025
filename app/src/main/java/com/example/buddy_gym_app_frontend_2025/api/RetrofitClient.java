@@ -43,6 +43,7 @@ public class RetrofitClient {
                         return chain.proceed(request);
                     }
                 })
+                .addInterceptor(new AuthInterceptor(context, tokenManager))
                 .build();
 
         retrofit = new Retrofit.Builder()

@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,6 +40,7 @@ public class ExerciseListActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TextView muscleNameText;
     private TextView emptyStateText;
+    private Toolbar toolbar;
 
     private int muscleId;
     private String muscleName;
@@ -57,6 +61,9 @@ public class ExerciseListActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        
         exerciseRecyclerView = findViewById(R.id.exerciseRecyclerView);
         addExerciseFab = findViewById(R.id.addExerciseFab);
         progressBar = findViewById(R.id.progressBar);
@@ -285,5 +292,28 @@ public class ExerciseListActivity extends AppCompatActivity {
                 Toast.makeText(ExerciseListActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_logout) {
+            performLogout();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void performLogout() {
+        retrofitClient.getTokenManager().clearToken();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }
