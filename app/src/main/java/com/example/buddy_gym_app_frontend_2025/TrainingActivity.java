@@ -2,6 +2,7 @@ package com.example.buddy_gym_app_frontend_2025;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -24,6 +25,7 @@ import retrofit2.Response;
 
 public class TrainingActivity extends AppCompatActivity {
 
+    private static final String TAG = "TrainingActivity";
     private TextView exerciseTitleText;
     private TextView lowWeightText;
     private TextView highWeightText;
@@ -89,16 +91,27 @@ public class TrainingActivity extends AppCompatActivity {
     }
 
     private void loadTrainingStats() {
+        Log.d(TAG, "Loading training stats for exercise: " + exerciseId);
         retrofitClient.getTrainingService().getTrainingStats(exerciseId, null)
                 .enqueue(new Callback<List<TrainingStats>>() {
                     @Override
                     public void onResponse(Call<List<TrainingStats>> call, Response<List<TrainingStats>> response) {
-                        if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                            TrainingStats stats = response.body().get(0);
-                            lowWeightText.setText(stats.getLowWeight() + " Kg");
-                            highWeightText.setText(stats.getHighWeight() + " Kg");
-                            lastWeightText.setText(stats.getLastWeight() + " Kg");
+                        if (response.isSuccessful() && response.body() != null) {
+                            Log.d(TAG, "Stats response successful. Items: " + response.body().size());
+                            if (!response.body().isEmpty()) {
+                                TrainingStats stats = response.body().get(0);
+                                Log.d(TAG, "Stats - Low: " + stats.getLowWeight() + ", High: " + stats.getHighWeight() + ", Last: " + stats.getLastWeight());
+                                lowWeightText.setText(stats.getLowWeight() + " Kg");
+                                highWeightText.setText(stats.getHighWeight() + " Kg");
+                                lastWeightText.setText(stats.getLastWeight() + " Kg");
+                            } else {
+                                Log.w(TAG, "Stats response is empty - no training data yet");
+                                lowWeightText.setText("0 Kg");
+                                highWeightText.setText("0 Kg");
+                                lastWeightText.setText("0 Kg");
+                            }
                         } else {
+                            Log.w(TAG, "Stats response not successful. Code: " + response.code());
                             lowWeightText.setText("0 Kg");
                             highWeightText.setText("0 Kg");
                             lastWeightText.setText("0 Kg");
@@ -107,7 +120,11 @@ public class TrainingActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Call<List<TrainingStats>> call, Throwable t) {
-                        Toast.makeText(TrainingActivity.this, "Failed to load stats", Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Failed to load stats: " + t.getMessage(), t);
+                        Toast.makeText(TrainingActivity.this, "Failed to load stats: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        lowWeightText.setText("0 Kg");
+                        highWeightText.setText("0 Kg");
+                        lastWeightText.setText("0 Kg");
                     }
                 });
     }
@@ -145,6 +162,8 @@ public class TrainingActivity extends AppCompatActivity {
                 Integer.parseInt(repsStr)
         );
 
+        Log.d(TAG, "Creating training - Exercise: " + exerciseId + ", Weight: " + weightStr + ", Sets: " + setsStr + ", Reps: " + repsStr);
+
         retrofitClient.getTrainingService().createTraining(training).enqueue(new Callback<Training>() {
             @Override
             public void onResponse(Call<Training> call, Response<Training> response) {
@@ -152,6 +171,7 @@ public class TrainingActivity extends AppCompatActivity {
                 insertButton.setText(R.string.insert);
 
                 if (response.isSuccessful()) {
+                    Log.d(TAG, "Training created successfully");
                     Toast.makeText(TrainingActivity.this, "Training recorded successfully!", Toast.LENGTH_SHORT).show();
                     
                     // Clear inputs
@@ -163,12 +183,14 @@ public class TrainingActivity extends AppCompatActivity {
                     // Reload stats
                     loadTrainingStats();
                 } else {
-                    Toast.makeText(TrainingActivity.this, "Failed to record training", Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "Failed to create training. Code: " + response.code());
+                    Toast.makeText(TrainingActivity.this, "Failed to record training: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Training> call, Throwable t) {
+                Log.e(TAG, "Network error creating training: " + t.getMessage(), t);
                 insertButton.setEnabled(true);
                 insertButton.setText(R.string.insert);
                 Toast.makeText(TrainingActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();

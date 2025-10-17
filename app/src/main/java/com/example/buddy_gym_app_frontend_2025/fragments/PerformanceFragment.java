@@ -74,51 +74,63 @@ public class PerformanceFragment extends Fragment {
     }
 
     private void loadPerformanceData() {
-        // Load current week
+        // Load current week (100% = 5 sessions)
         retrofitClient.getTrainingService().getTrainingHistory(exerciseId, null, "current_week")
                 .enqueue(new Callback<List<Training>>() {
                     @Override
                     public void onResponse(Call<List<Training>> call, Response<List<Training>> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             int count = response.body().size();
-                            currentWeekText.setText(count * 10 + "%");
+                            int percentage = Math.min((count * 100) / 5, 100);
+                            currentWeekText.setText(percentage + "%");
+                        } else {
+                            currentWeekText.setText("0%");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<List<Training>> call, Throwable t) {
+                        currentWeekText.setText("0%");
                     }
                 });
 
-        // Load last week
+        // Load last week (100% = 5 sessions)
         retrofitClient.getTrainingService().getTrainingHistory(exerciseId, null, "last_week")
                 .enqueue(new Callback<List<Training>>() {
                     @Override
                     public void onResponse(Call<List<Training>> call, Response<List<Training>> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             int count = response.body().size();
-                            lastWeekText.setText(count * 10 + "%");
+                            int percentage = Math.min((count * 100) / 5, 100);
+                            lastWeekText.setText(percentage + "%");
+                        } else {
+                            lastWeekText.setText("0%");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<List<Training>> call, Throwable t) {
+                        lastWeekText.setText("0%");
                     }
                 });
 
-        // Load last month
+        // Load last month (100% = 25 sessions)
         retrofitClient.getTrainingService().getTrainingHistory(exerciseId, null, "last_month")
                 .enqueue(new Callback<List<Training>>() {
                     @Override
                     public void onResponse(Call<List<Training>> call, Response<List<Training>> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             int count = response.body().size();
-                            lastMonthText.setText(count * 10 + "%");
+                            int percentage = Math.min((count * 100) / 25, 100);
+                            lastMonthText.setText(percentage + "%");
+                        } else {
+                            lastMonthText.setText("0%");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<List<Training>> call, Throwable t) {
+                        lastMonthText.setText("0%");
                     }
                 });
 
