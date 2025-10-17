@@ -21,8 +21,15 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -173,9 +180,46 @@ public class PerformanceFragment extends Fragment {
     private void updateChart(List<Training> trainings) {
         ArrayList<BarEntry> entries = new ArrayList<>();
         
-        // Group trainings by month and count
-        for (int i = 0; i < Math.min(12, trainings.size()); i++) {
-            entries.add(new BarEntry(i, trainings.size() - i));
+        // Create a map to count trainings per month (0-11 for last 12 months)
+        Map<Integer, Integer> monthCounts = new HashMap<>();
+        for (int i = 0; i < 12; i++) {
+            monthCounts.put(i, 0);
+        }
+        
+        // Get current date
+        Calendar now = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+        
+        // Group trainings by month
+        for (Training training : trainings) {
+            if (training.getDatetime() != null && !training.getDatetime().isEmpty()) {
+                try {
+                    // Parse the training date
+                    Date trainingDate = dateFormat.parse(training.getDatetime().substring(0, 19));
+                    if (trainingDate != null) {
+                        Calendar trainingCal = Calendar.getInstance();
+                        trainingCal.setTime(trainingDate);
+                        
+                        // Calculate months difference from now
+                        int yearDiff = now.get(Calendar.YEAR) - trainingCal.get(Calendar.YEAR);
+                        int monthDiff = now.get(Calendar.MONTH) - trainingCal.get(Calendar.MONTH);
+                        int totalMonthsDiff = yearDiff * 12 + monthDiff;
+                        
+                        // If within last 12 months, add to count
+                        if (totalMonthsDiff >= 0 && totalMonthsDiff < 12) {
+                            int monthIndex = 11 - totalMonthsDiff; // Reverse order (oldest to newest)
+                            monthCounts.put(monthIndex, monthCounts.get(monthIndex) + 1);
+                        }
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+        // Create bar entries from month counts
+        for (int i = 0; i < 12; i++) {
+            entries.add(new BarEntry(i, monthCounts.get(i)));
         }
 
         BarDataSet dataSet = new BarDataSet(entries, "Trainings");
