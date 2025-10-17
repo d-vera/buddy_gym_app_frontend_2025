@@ -20,6 +20,7 @@ import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -168,13 +169,44 @@ public class PerformanceFragment extends Fragment {
         barChart.setDrawBarShadow(false);
         barChart.setHighlightFullBarEnabled(false);
 
+        // Get month labels for last 12 months
+        final String[] monthLabels = getMonthLabels();
+
         XAxis xAxis = barChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
+        xAxis.setGranularity(1f);
+        xAxis.setLabelCount(12);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                int index = (int) value;
+                if (index >= 0 && index < monthLabels.length) {
+                    return monthLabels[index];
+                }
+                return "";
+            }
+        });
 
         barChart.getAxisLeft().setDrawGridLines(false);
         barChart.getAxisRight().setEnabled(false);
         barChart.getLegend().setEnabled(false);
+    }
+
+    private String[] getMonthLabels() {
+        String[] labels = new String[12];
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat monthFormat = new SimpleDateFormat("MMM", Locale.getDefault());
+        
+        // Start from 12 months ago
+        calendar.add(Calendar.MONTH, -11);
+        
+        for (int i = 0; i < 12; i++) {
+            labels[i] = monthFormat.format(calendar.getTime());
+            calendar.add(Calendar.MONTH, 1);
+        }
+        
+        return labels;
     }
 
     private void updateChart(List<Training> trainings) {
