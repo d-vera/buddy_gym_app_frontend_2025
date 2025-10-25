@@ -1,0 +1,28 @@
+Requirements
+Create an android app for a fitness studio 
+-The backend is running here: http://localhost:8000/api/
+-The app should be written in Java 
+-The documentation of the backend is in Open API
+-The documentation of the API for the backend is here: 
+-Use the library Retrofit for connecting the backend 
+-The app should allow the users to register as shown in the Activity 3. After registration the user must return to Activity 1 for signing in again
+-The users can login in the application as shown in the Activity 1
+-When the user is logged in, the activity 2 will be shown
+-when the user clicked in the green button of the Activity 2, the user must go to Activity 4 to select a muscle
+-The Activity 4 must show the list of muscles reading them from the Database
+-After selecting a muscle in Activity 4. The user must go to Activity 5
+- In the Activity 5 will be shown the list of exercises for the selected muscle 
+-In the Activity 5 the user can edit, add and delete exercises
+-When the user select an exercise in the Activity 5. It will go to the Activity 6 
+-In the Activity 6, the user can register a new training for the selected muscle
+- In the Activity6, the user can see the statistic about its past trainings
+-In the Activity 6, the user can select to see all the history of the trainings as shown in the Activity 7
+-In the Activity 7 has two tabs. One for the history of the training, and the second one for performance of the trainings for the selected muscle
+-The performance will show the trainings in the current week, last week, last month and last year 
+-The design of the app is in the image 
+
+-Redo all the UI with the pictures
+-The user needs to select first a muscle
+-The list of muscles should be read from the API
+-For adding, deleting and editing an exercise should be done in the same activity with pop ups as it showed in the last picture
+ 
